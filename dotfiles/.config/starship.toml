@@ -1,6 +1,5 @@
 format = '$all'
 
-
 [battery]
 full_symbol = "🔋"
 charging_symbol = "🔌"
@@ -99,7 +98,6 @@ python_binary = ["./venv/bin/python", "python", "python3", "python2"]
 detect_extensions = ["py"]
 version_format = "v${raw}"
 
-
 [rust]
 format = "[$symbol$version]($style) "
 style = "bold green"
@@ -118,7 +116,6 @@ format = "░░░[ $user ]($style)[\uE0A0](green bold)"
 disabled = false
 show_always = true
 
-
 [nodejs]
 format = "via [🤖 $version](bold green) "
 
@@ -130,12 +127,10 @@ format = 'on [$symbol$profile]($style) '
 style = 'bold blue'
 symbol = '🅰 '
 
-
 [os]
 format = "on [($name )$symbol]($style)"
 style = "bold blue"
 disabled = false
-
 
 [os.symbols]
 Alpaquita = "🔔 "
@@ -183,7 +178,6 @@ Windows = "🪟 "
 [php]
 format = ' [$symbol php ($version )]($style)'
 symbol = '🐘 '
-
 
 [helm]
 format = 'via [🪟 $version](bold white) '
