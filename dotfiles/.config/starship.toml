@@ -207,5 +207,5 @@ disabled = false
 [sudo]
 style = 'bold green'
 symbol = '🧙 '
-disabled = false
+disabled = true
 format = '[|| $symbol]($style)'
