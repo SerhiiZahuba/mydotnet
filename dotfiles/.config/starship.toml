@@ -181,7 +181,8 @@ Unknown = "❓ "
 Windows = "🪟 "
 
 [php]
-format = 'via [🔹 $version](147 bold) '
+format = ' [$symbol php ($version )]($style)'
+symbol = '🐘 '
 
 
 [helm]
