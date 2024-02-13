@@ -208,4 +208,4 @@ disabled = false
 style = 'bold green'
 symbol = '🧙 '
 disabled = false
-format = '[||you are as $symbol]($style)'
+format = '[|| $symbol]($style)'
