@@ -1,0 +1,211 @@
+format = '$all'
+
+
+[battery]
+full_symbol = "🔋"
+charging_symbol = "🔌"
+discharging_symbol = "⚡"
+
+[[battery.display]]
+threshold = 30
+style = "bold red"
+
+[character]
+error_symbol = "[✖](bold red) "
+success_symbol = " [╰─λ](bold color2)"
+
+[cmd_duration]
+disabled = false
+format = "⏱  [$duration]($style)"
+style = "fg:color2"
+min_time = 1
+
+[directory]
+truncation_length = 5
+format = "[$path]($style)[$lock_symbol]($lock_style) "
+
+[directory.substitutions]
+"Documents" = "🗁 "
+"Downloads" = " "
+"Music" = " "
+"Pictures" = " "
+"dev" = "⌨"
+".config" = "⚙"
+".ssh" = "🗝"
+".gnupg" = "🔒"
+"/etc" = "/etc/⚒"
+"/var" = "/var/🕱"
+
+[git_branch]
+format = " [$symbol$branch]($style) "
+symbol = "🍣 "
+style = "bold yellow"
+
+[git_commit]
+commit_hash_length = 8
+style = "bold white"
+
+[git_state]
+format = '[\($state( $progress_current of $progress_total)\)]($style) '
+
+[git_status]
+conflicted = "⚔️ "
+ahead = "🏎️ 💨 ×${count}"
+behind = "🐢 ×${count}"
+diverged = "🔱 🏎️ 💨 ×${ahead_count} 🐢 ×${behind_count}"
+untracked = "🛤️  ×${count}"
+stashed = "📦 "
+modified = "📝 ×${count}"
+staged = "🗃️  ×${count}"
+renamed = "📛 ×${count}"
+deleted = "🗑️  ×${count}"
+style = "bright-white"
+format = "$all_status$ahead_behind"
+
+[hostname]
+ssh_only = false
+format = '[$ssh_symbol](bold blue) on 🌏[$hostname](bold red)'
+trim_at = '.companyname.com'
+disabled = false
+
+[localip]
+ssh_only = false
+format = '@[$localipv4](bold red) '
+disabled = false
+
+[julia]
+format = "[$symbol$version]($style) "
+symbol = "ஃ "
+style = "bold green"
+
+[memory_usage]
+format = "$symbol[mem:${ram}( |swap: ${swap})]($style) "
+threshold = 75
+style = "bold dimmed white"
+symbol = '🐏 '
+disabled = false
+
+[package]
+disabled = false
+format = 'via [🎁 $version](208 bold) '
+
+[python]
+symbol = "🐍 "
+#pyenv_version_name = true
+format = 'via [${symbol}python (${version} )(\($virtualenv\) )]($style)'
+style = "bold yellow"
+pyenv_prefix = "venv "
+python_binary = ["./venv/bin/python", "python", "python3", "python2"]
+detect_extensions = ["py"]
+version_format = "v${raw}"
+
+
+[rust]
+format = "[$symbol$version]($style) "
+style = "bold green"
+
+[time]
+time_format = "%T"
+format = "🕙 $time($style) "
+style = "bright-white"
+disabled = false
+
+[username]
+style_user = "red bold"
+style_root = "green bold"
+format = "░░░[ $user ]($style)[\uE0A0](green bold)"
+#format = "[ $user ]($style)[\uE0A0](bg:#BF616A fg:#4C566A)"
+disabled = false
+show_always = true
+
+
+[nodejs]
+format = "via [🤖 $version](bold green) "
+
+[java]
+symbol = '🌟 '
+
+[aws]
+format = 'on [$symbol$profile]($style) '
+style = 'bold blue'
+symbol = '🅰 '
+
+
+[os]
+format = "on [($name )$symbol]($style)"
+style = "bold blue"
+disabled = false
+
+
+[os.symbols]
+Alpaquita = "🔔 "
+Alpine = "🏔️ "
+Amazon = "🙂 "
+Android = "🤖 "
+Arch = "🎗️ "
+Artix = "🎗️ "
+CentOS = "💠 "
+Debian = "🌀 "
+DragonFly = "🐉 "
+Emscripten = "🔗 "
+EndeavourOS = "🚀 "
+Fedora = "🎩 "
+FreeBSD = "😈 "
+Garuda = "🦅 "
+Gentoo = "🗜️ "
+HardenedBSD = "🛡️ "
+Illumos = "🐦 "
+Linux = "🐧 "
+Mabox = "📦 "
+Macos = "🍎 "
+Manjaro = "🥭 "
+Mariner = "🌊 "
+MidnightBSD = "🌘 "
+Mint = "🌿 "
+NetBSD = "🚩 "
+NixOS = "❄️ "
+OpenBSD = "🐡 "
+OpenCloudOS = "☁️ "
+openEuler = "🦉 "
+openSUSE = "🦎 "
+OracleLinux = "🦴 "
+Pop = "🍭 "
+Raspbian = "🍓 "
+Redhat = "🎩 "
+RedHatEnterprise = "🎩 "
+Redox = "🧪 "
+Solus = "⛵ "
+SUSE = "🦎 "
+Ubuntu = "🎯 "
+Unknown = "❓ "
+Windows = "🪟 "
+
+[php]
+format = 'via [🔹 $version](147 bold) '
+
+
+[helm]
+format = 'via [🪟 $version](bold white) '
+
+[container]
+format = '[$symbol \[$name\]]($style) '
+
+[docker_context]
+format = 'via [🐋 $context](blue bold)'
+
+[terraform]
+format = '[🏎💨 $version$workspace]($style) '
+
+[status]
+style = 'bg:blue'
+symbol = '🔴 '
+success_symbol = '🟢 SUCCESS'
+format = '[\[$symbol$common_meaning$signal_name$maybe_int\]]($style) '
+map_symbol = true
+disabled = false
+
+[sudo]
+style = 'bold green'
+symbol = '🧙 '
+disabled = false
+format = '[||you are as $symbol]($style)'
