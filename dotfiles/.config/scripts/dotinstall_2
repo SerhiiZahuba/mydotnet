@@ -1,0 +1,17 @@
+#/bin/bash
+
+# install starship
+curl -fsSL https://starship.rs/install.sh | bash
+# install  mcfly
+curl -LSfs https://raw.githubusercontent.com/cantino/mcfly/master/ci/install.sh | sh -s -- --git cantino/mcfly
+# install bat
+wget https://github.com/sharkdp/bat/releases/download/v0.24.0/bat_0.24.0_amd64.deb && dpkg -i bat_0.24.0_amd64.deb
+
+# add repo for fish
+echo 'deb http://download.opensuse.org/repositories/shells:/fish:/release:/3/Debian_12/ /' | sudo tee /etc/apt/sources.list.d/shells:fish:release:3.list
+curl -fsSL https://download.opensuse.org/repositories/shells:fish:release:3/Debian_12/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/shells_fish_release_3.gpg > /dev/null
+sudo apt update
+
+# install soft
+sudo apt install curl git fonts-firacode fzf gpg bat fish
+chsh -s $(which fish)
