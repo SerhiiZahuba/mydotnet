@@ -373,3 +373,5 @@ if filereadable(expand("~/.vimrc.plug"))
     map <leader>ff :FloatermNew --height=0.6 --width=0.8 fzf<cr>
 endif
 
+    " disable visual mode in vim
+set mouse-=a
