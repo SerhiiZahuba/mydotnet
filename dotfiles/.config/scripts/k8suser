@@ -1,180 +1,158 @@
 #!/usr/bin/env bash
 
+# Set script_dir
 script_dir="$(dirname "$(realpath "$0")")"
+cur_dir=$(pwd)
 
 # Source util functions
 source "${script_dir}/_util"
 
-# Check requirements
+ran_col_str "Utility or creating manifest templates for Kubernetes"
+
 command -v kubectl >/dev/null || error_msg "Please install kubectl" 1
-command -v openssl >/dev/null || error_msg "Please install openssl" 1
+command -v fzf >/dev/null || error_msg "Please install fzf" 1
 command -v gum >/dev/null || error_msg "Please install gum CLI utility: https://github.com/charmbracelet/gum" 1
-command -v jq >/dev/null || error_msg "Please install jq JSON parsing utility" 1
 
-check() {
-	# Check for kubernetes resource existance
-	name=$2
-	kind=$1
-	names=($(kubectl --context $CONTEXT -n $NAMESPACE get $kind --no-headers --output=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' 2>/dev/null))
+templates=(
+	"clusterrole"
+	"clusterrolebinding"
+	"configmap"
+	"cronjob"
+	"deployment"
+	"ingress"
+	"job"
+	"namespace"
+	"poddisruptionbudget"
+	"priorityclass"
+	"quota"
+	"secret"
+	"service"
+	"serviceaccount"
+)
 
-	if [[ " ${names[*]} " =~ " ${name} " ]]; then
-		echo 1
-	else
-		echo 0
-	fi
-}
+resource_name="template"
 
-# User prompts
-CONTEXT=$(kubectl config get-contexts -o name | gum choose --header "Select Kubernetes context")
-success_msg "Context '${CONTEXT}' selected"
+selected_resource=$(
+	echo "${templates[@]}" |
+		tr ' ' '\n' |
+		fzf \
+			--header 'Select template' \
+			--preview 'kubectl explain {1}' \
+			--preview-label 'Kubectl Explain' \
+			--preview-window 'right:80%'
+)
 
-NAMESPACE=$(kubectl --context ${CONTEXT} get ns -o json | jq -r '.items[].metadata.labels.["kubernetes.io/metadata.name"]' | gum choose --header "Select Kubernetes Namespsace for ${CONTEXT}")
-success_msg "Namespace '${NAMESPACE}' selected"
+case $selected_resource in
+clusterrole)
+	echo "clusterrole"
+	;;
+clusterrolebinding)
+	echo "clusterrolebinding"
+	;;
+configmap)
+	echo "configmap"
+	;;
+cronjob)
+	# Set input variables
+	namespace=$(gum input --value "default" --header="Enter namespace for resource")
+	success_msg "Namespace '${namespace}'"
+	resource_name=$(gum input --value "${resource_name}" --header="Enter resource name")
+	success_msg "Resource name '${resource_name}'"
+	image_name=$(gum input --value "alpine:latest" --header="Set Image name")
+	success_msg "Image '${image_name}'"
+	cron_schedule=$(gum input --value "15 * * * *" --header="Set Cron schedule")
+	success_msg "Cron schedule '${cron_schedule}'"
+	restart_policy=$(gum choose --header="Set restart policy" "OnFailure" "Never")
+	success_msg "Restart policy '${restart_policy}'"
+	cmd=$(gum write --char-limit=0 --show-line-numbers --value "/bin/sh -c -- date" --header="Command to run")
+	success_msg "Command: ${cmd}"
 
-USERNAME=$(gum input --placeholder="Enter a new username")
-success_msg "User '${USERNAME}' assigned"
+	# Create resource
+	file_name="${resource_name}.${selected_resource}.yaml"
+	kubectl create cronjob "${resource_name}" \
+		--namespace="${namespace}" \
+		--image="${image_name}" \
+		--schedule="${cron_schedule}" \
+		--restart="${restart_policy}" \
+		--dry-run=client \
+		--output=yaml \
+		-- ${cmd} \
+		>$file_name
+	;;
+deployment)
+	# Set input variables
+	namespace=$(gum input --value "default" --header="Enter namespace for resource")
+	success_msg "Namespace '${namespace}'"
+	resource_name=$(gum input --value "${resource_name}" --header="Enter resource name")
+	success_msg "Resource name '${resource_name}'"
+	image_name=$(gum input --value "alpine:latest" --header="Set Image name")
+	success_msg "Image '${image_name}'"
+	container_port=$(gum input --value="-1" --header="Container expose port (-1 = none)")
+	success_msg "Port ${container_port}"
+	replicas=$(gum input --value "1" --header="Number of replicas")
+	success_msg "Replicas ${replicas}"
+	cmd=$(gum write --char-limit=0 --show-line-numbers --value "/bin/sh -c -- echo hello" --header="Command to run")
+	success_msg "Command: ${cmd}"
 
-VALID_DAYS=$(gum input --value 365 --placeholder="Certificate validity in days")
-success_msg "Certificate will be valid for '${VALID_DAYS}' days"
+	# Create resource
+	file_name="${resource_name}.${selected_resource}.yaml"
+	kubectl create deployment "${resource_name}" \
+		--namespace="${namespace}" \
+		--image="${image_name}" \
+		--port=${container_port} \
+		--replicas=${replicas} \
+		--dry-run=client \
+		--output=yaml \
+		-- ${cmd} \
+		>$file_name
+	;;
+ingress)
+	echo "ingress"
+	;;
+job)
+	echo "job"
+	;;
+namespace)
+	# Set input variables
+	namespace=$(gum input --value "default" --header="Enter namespace for resource")
+	success_msg "Namespace '${namespace}'"
+	resource_name=$(gum input --value "${resource_name}" --header="Enter resource name")
+	success_msg "Resource name '${resource_name}'"
 
-# Temp dir
-TMPD=$(mktemp -d)
-info_msg "Created tmp dir at: ${TMPD}"
+	# Create resource
+	file_name="${resource_name}.${selected_resource}.yaml"
+	kubectl create namespace "${namespace}" \
+		--dry-run=client \
+		--output=yaml \
+		-- ${cmd} \
+		>$file_name
+	;;
+poddisruptionbudget)
+	echo "poddisruptionbudget"
+	;;
+priorityclass)
+	echo "priorityclass"
+	;;
+quota)
+	echo "quota"
+	;;
+secret)
+	echo "secret"
+	;;
+service)
+	echo "service"
+	;;
+serviceaccount)
+	echo "serviceaccount"
+	;;
+	;;
+*) error_msg "Unknown template $selected_resource" 1 ;;
+esac
 
-# Generate Key
-openssl genrsa -out "${TMPD}/${USERNAME}.key" 4096 2>/dev/null
-
-# Generate CSR
-openssl req -new -nodes -subj "/CN=$USERNAME" -key "${TMPD}/${USERNAME}.key" -out "${TMPD}/${USERNAME}.csr" 2>/dev/null
-BASE64_CSR="$(cat "${TMPD}/${USERNAME}.csr" | base64 | tr -d '\n')"
-
-# Template Generation
-cat >$TMPD/csr.yaml <<EOF
-# apiVersion: certificates.k8s.io/v1beta1
-apiVersion: certificates.k8s.io/v1
-kind: CertificateSigningRequest
-metadata:
-  name: ${USERNAME}-csr
-  labels:
-    managed-by: k8suser-script
-spec:
-  groups:
-    - system:authenticated
-  expirationSeconds: $((60 * 60 * 24 * $VALID_DAYS))
-  request: ${BASE64_CSR}
-  # Field required for certificates.k8s.io/v1
-  signerName: kubernetes.io/kube-apiserver-client
-  usages:
-    - client auth
-EOF
-
-cat >$TMPD/role.yaml <<EOF
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  namespace: $NAMESPACE
-  name: ${USERNAME}-role
-  labels:
-    managed-by: k8suser-script
-rules:
-  - apiGroups: ["*"]
-    resources: ["*"]
-    verbs: ["*"]
-EOF
-
-cat >$TMPD/rb.yaml <<EOF
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: ${USERNAME}-rb
-  namespace: ${NAMESPACE}
-subjects:
-  - kind: User
-    name: ${USERNAME}
-    apiGroup: rbac.authorization.k8s.io
-roleRef:
-  kind: Role
-  name: ${USERNAME}-role
-  apiGroup: rbac.authorization.k8s.io
-EOF
-
-echo "DEBUG: $(check csr ${USERNAME}-csr)"
-
-# Checks
-if [ "$(check csr ${USERNAME}-csr)" -eq 1 ]; then
-	warning_msg "Will delete existsing CSR"
-	kubectl --context $CONTEXT -n $NAMESPACE delete csr "${USERNAME}-csr"
+if [[ "$?" -eq 0 ]]; then
+	success_msg "Template successfully saved as ${file_name}"
+	sleep 1
+	gum pager --show-line-numbers --soft-wrap <${file_name}
+else
+	error_msg "Error saving ${file_name}" 1
 fi
-
-# Template apply
-cat $TMPD/rb.yaml | kubectl --context $CONTEXT -n $NAMESPACE apply -f -
-[[ $? -eq 0 ]] &&
-	success_msg "RoleBinding create success" ||
-	error_msg "RoleBinding create failed" 1
-
-cat $TMPD/role.yaml | kubectl --context "${CONTEXT}" -n $NAMESPACE apply -f -
-[[ $? -eq 0 ]] &&
-	success_msg "Role create success" ||
-	error_msg "Role create failed" 1
-
-cat $TMPD/csr.yaml | kubectl --context $CONTEXT -n $NAMESPACE apply -f -
-[[ $? -eq 0 ]] &&
-	success_msg "CSR create success" ||
-	error_msg "CSR create failed" 1
-
-kubectl --context $CONTEXT -n $NAMESPACE certificate approve "${USERNAME}-csr"
-[[ $? -eq 0 ]] &&
-	success_msg "CertificateSigningRequest approved" ||
-	error_msg "CertificateSigningRequest approval failed" 1
-
-kubectl --context $CONTEXT -n $NAMESPACE get csr "${USERNAME}-csr" -o jsonpath='{.status.certificate}' | base64 --decode >"${TMPD}/${USERNAME}.crt"
-[[ -s "${TMPD}/${USERNAME}.crt" ]] &&
-	success_msg "Certificate ${TMPD}/${USERNAME}.crt Not Empty" ||
-	error_msg "Certificate ${TMPD}/${USERNAME}.crt Empty Error" 1
-
-cat $TMPD/rb.yaml | kubectl --context $CONTEXT -n $NAMESPACE apply -f -
-[[ $? -eq 0 ]] &&
-	success_msg "Role created" ||
-	error_msg "Role creation failed" 1
-
-cat $TMPD/role.yaml | kubectl --context "${CONTEXT}" -n $NAMESPACE apply -f -
-[[ $? -eq 0 ]] &&
-	success_msg "RoleBinding created" ||
-	error_msg "RoleBinding creation failed" 1
-
-CLIENT_CERT="$(cat $TMPD/${USERNAME}.crt | base64 | tr -d "\n")"
-CLIENT_KEY="$(cat $TMPD/${USERNAME}.key | base64 | tr -d "\n")"
-
-CLUSTER_CA=$(kubectl config view --raw -o json | jq '.clusters[] | select(.name=="'$CONTEXT'").cluster."certificate-authority-data"')
-CLUSTER_EP=$(kubectl config view --raw -o json | jq '.clusters[] | select(.name=="'$CONTEXT'").cluster.server')
-
-echo "DEBUG CLUSTER_CA: $CLUSTER_CA"
-echo "DEBUG CLUSTER_EP: $CLUSTER_EP"
-
-cat >$TMPD/kubeconfig <<EOF
-apiVersion: v1
-kind: Config
-clusters:
-  - cluster:
-      certificate-authority-data: ${CLUSTER_CA}
-      server: ${CLUSTER_EP}
-    name: ${CONTEXT}
-users:
-  - name: ${USERNAME}
-    user:
-      client-certificate-data: ${CLIENT_CERT}
-      client-key-data: ${CLIENT_KEY}
-contexts:
-  - context:
-      cluster: ${CONTEXT}
-      namespace: ${NAMESPACE}
-      user: ${USERNAME}
-    name: ${CONTEXT}
-current-context: ${CONTEXT}
-EOF
-
-success_msg "Your kubeconfig: $TMPD/kubeconfig"
-
-gum pager --show-line-numbers --soft-wrap <$TMPD/kubeconfig
-
-exit 0
