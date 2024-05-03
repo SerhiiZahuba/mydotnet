@@ -15,10 +15,27 @@ source "${script_dir}/_util"
 
 ran_col_str "Binary install utility" c
 
-binaries="docker-compose k9s eza bat starship mcfly fzf jq jqp htmlq yq fd upx"
+binaries=(
+	"docker-compose"
+	"k9s"
+	"eza"
+	"bat"
+	"starship"
+	"mcfly"
+	"fzf"
+	"jq"
+	"jqp"
+	"htmlq"
+	"yq"
+	"fd"
+	"upx"
+	"gum"
+	"bottom"
+)
 
+bin_list="${binaries[@]}"
 cmd_arg_help \
-	"Program name. Available: ${GREEN}${binaries}${CLEAR}" \
+	"Program name. Available: ${GREEN}${bin_list}${CLEAR}" \
 	"Bin path. Set: ${GREEN}${bin_dir}${CLEAR}" \
 	"Curl requests delay in seconds: Set: ${GREEN}${delay}${CLEAR}s"
 
@@ -32,7 +49,7 @@ function fetch_version_docker_compose {
 		# Get all tag names
 		jq -r '.[]|.name' |
 		# Get latest "vx.x.x" pattern without additional characters
-		grep -P -m 1 'v[0-9]+\.[0-9]+\.[0-9]+$'
+		grep -P -m 1 '^v[0-9]+\.[0-9]+\.[0-9]+$'
 }
 
 function fetch_version_k9s {
@@ -42,7 +59,7 @@ function fetch_version_k9s {
 		# Get all tag names
 		jq -r '.[]|.name' |
 		# Get latest "vx.x.x" pattern without additional characters
-		grep -P -m 1 'v[0-9]+\.[0-9]+\.[0-9]+$'
+		grep -P -m 1 '^v[0-9]+\.[0-9]+\.[0-9]+$'
 }
 
 function fetch_version_eza {
@@ -52,7 +69,7 @@ function fetch_version_eza {
 		# Get all tag names
 		jq -r '.[]|.name' |
 		# Get latest "vx.x.x" pattern without additional characters
-		grep -P -m 1 'v[0-9]+\.[0-9]+\.[0-9]+$'
+		grep -P -m 1 '^v[0-9]+\.[0-9]+\.[0-9]+$'
 }
 
 function fetch_version_bat {
@@ -62,7 +79,7 @@ function fetch_version_bat {
 		# Get all tag names
 		jq -r '.[]|.name' |
 		# Get latest "vx.x.x" pattern without additional characters
-		grep -P -m 1 'v[0-9]+\.[0-9]+\.[0-9]+$'
+		grep -P -m 1 '^v[0-9]+\.[0-9]+\.[0-9]+$'
 }
 
 function fetch_version_starship {
@@ -72,7 +89,7 @@ function fetch_version_starship {
 		# Get all tag names
 		jq -r '.[]|.name' |
 		# Get latest "vx.x.x" pattern without additional characters
-		grep -P -m 1 'v[0-9]+\.[0-9]+\.[0-9]+$'
+		grep -P -m 1 '^v[0-9]+\.[0-9]+\.[0-9]+$'
 }
 
 function fetch_version_mcfly {
@@ -82,7 +99,7 @@ function fetch_version_mcfly {
 		# Get all tag names
 		jq -r '.[]|.name' |
 		# Get latest "vx.x.x" pattern without additional characters
-		grep -P -m 1 'v[0-9]+\.[0-9]+\.[0-9]+$'
+		grep -P -m 1 '^v[0-9]+\.[0-9]+\.[0-9]+$'
 }
 
 function fetch_version_fzf {
@@ -92,7 +109,7 @@ function fetch_version_fzf {
 		# Get all tag names
 		jq -r '.[]|.name' |
 		# Get latest "x.x.x" pattern without additional characters
-		grep -P -m 1 '[0-9]+\.[0-9]+\.[0-9]+$'
+		grep -P -m 1 '^[0-9]+\.[0-9]+\.[0-9]+$'
 }
 
 function fetch_version_jq {
@@ -102,7 +119,7 @@ function fetch_version_jq {
 		# Get all tag names
 		jq -r '.[]|.name' |
 		# Get latest "jq-x.x" pattern without additional characters
-		grep -P -m 1 'jq-[0-9]+\.[0-9]+$'
+		grep -P -m 1 '^jq-[0-9]+\.[0-9]+$'
 }
 
 function fetch_version_jqp {
@@ -112,7 +129,7 @@ function fetch_version_jqp {
 		# Get all tag names
 		jq -r '.[]|.name' |
 		# Get latest "vx.x.x" pattern without additional characters
-		grep -P -m 1 'v[0-9]+\.[0-9]+\.[0-9]+$'
+		grep -P -m 1 '^v[0-9]+\.[0-9]+\.[0-9]+$'
 }
 
 function fetch_version_htmlq {
@@ -122,7 +139,7 @@ function fetch_version_htmlq {
 		# Get all tag names
 		jq -r '.[]|.name' |
 		# Get latest "vx.x.x" pattern without additional characters
-		grep -P -m 1 'v[0-9]+\.[0-9]+\.[0-9]+$'
+		grep -P -m 1 '^v[0-9]+\.[0-9]+\.[0-9]+$'
 }
 
 function fetch_version_yq {
@@ -132,7 +149,7 @@ function fetch_version_yq {
 		# Get all tag names
 		jq -r '.[]|.name' |
 		# Get latest "vx.x.x" pattern without additional characters
-		grep -P -m 1 'v[0-9]+\.[0-9]+\.[0-9]+$'
+		grep -P -m 1 '^v[0-9]+\.[0-9]+\.[0-9]+$'
 }
 
 function fetch_version_ripgrep {
@@ -142,7 +159,7 @@ function fetch_version_ripgrep {
 		# Get all tag names
 		jq -r '.[]|.name' |
 		# Get latest "vx.x.x" pattern without additional characters
-		grep -P -m 1 'v[0-9]+\.[0-9]+\.[0-9]+$'
+		grep -P -m 1 '^v[0-9]+\.[0-9]+\.[0-9]+$'
 }
 
 function fetch_version_fd {
@@ -152,32 +169,51 @@ function fetch_version_fd {
 		# Get all tag names
 		jq -r '.[]|.name' |
 		# Get latest "vx.x.x" pattern without additional characters
-		grep -P -m 1 'v[0-9]+\.[0-9]+\.[0-9]+$'
+		grep -P -m 1 '^v[0-9]+\.[0-9]+\.[0-9]+$'
 }
 
 function fetch_version_upx {
-	# Get latest fd version and print result
+	# Get latest upx version and print result
 	sleep "$delay"
 	curl -s "https://api.github.com/repos/upx/upx/tags" |
 		# Get all tag names
 		jq -r '.[]|.name' |
 		# Get latest "vx.x.x" pattern without additional characters
-		grep -P -m 1 'v[0-9]+\.[0-9]+\.[0-9]+$'
+		grep -P -m 1 '^v[0-9]+\.[0-9]+\.[0-9]+$'
+}
+
+function fetch_version_gum {
+	# Get latest gum version and print result
+	sleep "$delay"
+	curl -s "https://api.github.com/repos/charmbracelet/gum/tags" |
+		# Get all tag names
+		jq -r '.[]|.name' |
+		# Get latest "vx.x.x" pattern without additional characters
+		grep -P -m 1 '^v[0-9]+\.[0-9]+\.[0-9]+$'
+}
+
+function fetch_version_bottom {
+	# Get latest bottom version and print result
+	sleep "$delay"
+	curl -s "https://api.github.com/repos/ClementTsang/bottom/tags" |
+		# Get all tag names
+		jq -r '.[]|.name' |
+		# Get latest "x.x.x" pattern without additional characters
+		grep -P -m 1 '^[0-9]+\.[0-9]+\.[0-9]+$'
 }
 
 case $1 in
 all)
-	warning_msg "Installing all binaries: ${binaries}"
+	warning_msg "Installing all binaries: ${binaries[@]}"
 	# Create an array from string
-	bins=($binaries)
-	for b in "${bins[@]}"; do
+	for b in "${binaries[@]}"; do
 		# Execute self with all binaries and bin path
 		eval "${0} ${b} ${bin_dir}"
 	done
 
 	# Create Y/N prompt
 	if yes_no_prompt "Compress downloads binaries with upx?"; then
-		for b in "${bins[@]}"; do
+		for b in "${binaries[@]}"; do
 			# Compress binaries in array
 			#sudo upx --best --lzma "${bin_dir}/*"
 			if [[ -w "${bin_dir}" ]]; then
@@ -586,8 +622,70 @@ upx)
 	success_msg "${1} installed"
 	# upx --version
 	;;
+gum)
+	info_msg "Fetching latest ${1} tag from GitHub"
+	version=$(fetch_version_gum)
+	[[ -n "${version}" ]] || error_msg "Error fetching version" 1
+	info_msg "Setting version to: ${UNDERLINE}${version}"
+
+	url="https://github.com/charmbracelet/gum/releases/download/${version}/${1}_${version##*v}_$(uname -s)_$(uname -m).tar.gz"
+	sleep "$delay"
+	[[ $(check_url "${url}") -ne 0 ]] && error_msg "Bad url" 6
+	success_msg "Valid url: ${UNDERLINE}${url}"
+
+	# Set vars for file download and untar dir
+	down_file="${url##*/}"
+	untar_dir="${1}-${version}"
+	mkdir -pv "/tmp/${untar_dir}"
+
+	# Download archive and unpack
+	curl -L "${url}" -o "/tmp/${down_file}"
+	tar -xvf "/tmp/${down_file}" -C "/tmp/${untar_dir}"
+
+	# Make binary excutable and move to bin directory
+	chmod +x "/tmp/${untar_dir}/${1}"
+	sudo_or_mv "/tmp/${untar_dir}/${1}" "${bin_dir}/"
+
+	# Remove tmp files
+	rm -rf "/tmp/${down_file}" "/tmp/${untar_dir}"
+
+	success_msg "${1} installed"
+	# gum --version
+	;;
+bottom)
+	info_msg "Fetching latest ${1} tag from GitHub"
+	version=$(fetch_version_bottom)
+	[[ -n "${version}" ]] || error_msg "Error fetching version" 1
+	info_msg "Setting version to: ${UNDERLINE}${version}"
+
+	[[ -n $(is_linux) ]] || error_msg "Can only download Linux binary. Your OS: $(uname -s)" 1
+	[[ -n $(is_x86) ]] || error_msg "Can only download x86 binary. Your arch: $(uname -m)" 1
+
+	url="https://github.com/ClementTsang/bottom/releases/download/${version}/${1}_$(uname -m)-unknown-linux-musl.tar.gz"
+	sleep "$delay"
+	[[ $(check_url "${url}") -ne 0 ]] && error_msg "Bad url" 6
+	success_msg "Valid url: ${UNDERLINE}${url}"
+
+	# Set vars for file download and untar dir
+	down_file="${url##*/}"
+	untar_dir="${1}-${version}"
+	mkdir -pv "/tmp/${untar_dir}"
+
+	# Download archive and unpack
+	curl -L "${url}" -o "/tmp/${down_file}"
+	tar -xvf "/tmp/${down_file}" -C "/tmp/${untar_dir}"
+
+	# Make binary excutable and move to bin directory
+	chmod +x "/tmp/${untar_dir}/btm"
+	sudo_or_mv "/tmp/${untar_dir}/btm" "${bin_dir}/"
+
+	# Remove tmp files
+	rm -rf "/tmp/${down_file}" "/tmp/${untar_dir}"
+
+	success_msg "${1} installed"
+	;;
 *)
 	error_msg "Unknown program: ${CLEAR}${UNDERLINE}${1}"
-	error_msg "List of available binaries: ${CLEAR}${UNDERLINE}${binaries}" 1
+	error_msg "List of available binaries: ${CLEAR}${UNDERLINE}${binaries[@]}" 1
 	;;
 esac
